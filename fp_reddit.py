@@ -9,7 +9,7 @@ import re
 import os
 
 x = datetime.today()
-y = x.replace(day=x.day+1, hour=6, minute=10, second=0, microsecond=0)
+y = x.replace(day=x.day, hour=12, minute=0, second=0, microsecond=0)
 delta_t = y-x
 
 secs = delta_t.seconds+1
@@ -36,10 +36,11 @@ def post():
     for item in soup.findAll("div", class_=re.compile('post-body')):
         content += item.text
 
-    title = soup.title.string[15:]
+    title = '[' + soup.title.string[15:] + '](' + str(article) + ')' 
     content = content.strip()[35:]
+    footer = "\n\n***\n\n^I'm ^a ^bot ^created ^by ^/u/RedVelvetKun23. ^I ^serve ^you ^the ^FP ^blind ^item ^of ^the ^day."
     # print(title + "\n" + content)
-    bi = title + "\n" + content
+    bi = title + "\n" + content + footer
 
     # Create the Reddit instance
     reddit = praw.Reddit('bot1')
@@ -61,14 +62,14 @@ def post():
 
     # Get the top 5 values from our subreddit
     subreddit = reddit.subreddit('Philippines')
-    for submission in subreddit.new(limit=5):
+    for submission in subreddit.new(limit=10):
         #print(submission.title)
 
         # If we haven't replied to this post before
         if submission.id not in posts_replied_to:
 
             # Do a case insensitive search
-            if re.search("daily random discussion", submission.title, re.IGNORECASE):
+            if re.search("afternoon random discussion", submission.title, re.IGNORECASE):
                 # Reply to the post
                 submission.reply(bi)
                 print("Bot replying to : ", submission.title)
@@ -84,3 +85,4 @@ def post():
 
 t = Timer(secs, post)
 t.start()
+
